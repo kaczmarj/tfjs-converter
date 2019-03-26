@@ -172,7 +172,7 @@ fi
 
 # Create virtualenvs for python2 and python3; build (and test) the wheels inside
 # them.
-VENV_PYTHON_BINS="python2 python3"
+VENV_PYTHON_BINS="python3"
 for VENV_PYTHON_BIN in ${VENV_PYTHON_BINS}; do
   if [[ -z "$(which "${VENV_PYTHON_BIN}")" ]]; then
     echo "ERROR: Unable to find ${VENV_PYTHON_BIN} on path."
