@@ -55,6 +55,24 @@ export const json: OpMapper[] = [
     ]
   },
   {
+    'tfOpName': 'MaxPool3D',
+    'category': 'convolution',
+    'inputs': [
+      {'start': 0, 'name': 'x', 'type': 'tensor'},
+    ],
+    'attrs': [
+      {'tfName': 'strides', 'name': 'strides', 'type': 'number[]'},
+      {'tfName': 'padding', 'name': 'pad', 'type': 'string'}, {
+        'tfName': 'data_format',
+        'name': 'dataFormat',
+        'type': 'string',
+        'notSupported': true
+      },
+      {'tfName': 'ksize', 'name': 'kernelSize', 'type': 'number[]'},
+      {'tfName': 'T', 'name': 'dtype', 'type': 'dtype', 'notSupported': true}
+    ]
+  },
+  {
     'tfOpName': 'Conv1D',
     'category': 'convolution',
     'inputs': [
@@ -168,5 +186,23 @@ export const json: OpMapper[] = [
       },
       {'tfName': 'dilations', 'name': 'dilations', 'type': 'number[]'}
     ],
-  }
+  },
+  {
+    'tfOpName': 'Conv3DBackpropInputV2',
+    'category': 'convolution',
+    'inputs': [
+      {'start': 2, 'name': 'x', 'type': 'tensor'},
+      {'start': 1, 'name': 'filter', 'type': 'tensor'},
+      {'start': 0, 'name': 'outputShape', 'type': 'number[]'},
+    ],
+    'attrs': [
+      {'tfName': 'strides', 'name': 'strides', 'type': 'number[]'},
+      {'tfName': 'padding', 'name': 'pad', 'type': 'string'}, {
+        'tfName': 'data_format',
+        'name': 'dataFormat',
+        'type': 'string',
+        'notSupported': true
+      }
+    ]
+  },
 ];
