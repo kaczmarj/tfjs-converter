@@ -71,6 +71,22 @@ describe('convolution', () => {
             .toHaveBeenCalledWith(input[0], [2, 2], [2, 2], 'same');
       });
     });
+
+    describe('maxPool3D', () => {
+      it('should call tfc.maxPool3D', () => {
+        spyOn(tfc, 'maxPool3D');
+        node.op = 'MaxPool3D';
+        node.attrParams['strides'] = createNumericArrayAttr([1, 2, 2, 2, 1]);
+        node.attrParams['pad'] = createStrAttr('same');
+        node.attrParams['kernelSize'] = createNumericArrayAttr([1, 2, 2, 2, 1]);
+
+        executeOp(node, {input}, context);
+
+        expect(tfc.maxPool3D)
+            .toHaveBeenCalledWith(input[0], [2, 2, 2], [2, 2, 2], 'same');
+      });
+    });
+
     describe('Conv2d', () => {
       it('should call tfc.conv2d', () => {
         spyOn(tfc, 'conv2d');
@@ -177,6 +193,28 @@ describe('convolution', () => {
         expect(tfc.conv3d)
             .toHaveBeenCalledWith(
                 input1[0], input2[0], [2, 2, 2], 'same', 'NHWC', [2, 2, 2]);
+      });
+    });
+
+    describe('Conv3DBackpropInput', () => {
+      it('should call tfc.conv3dTranspose', () => {
+        spyOn(tfc, 'conv3dTranspose');
+        node.op = 'Conv3DBackpropInput';
+        node.attrParams['outputShape'] =
+            createNumericArrayAttr([1, 2, 2, 2, 2]);
+        node.inputParams['filter'] = createTensorAttr(1);
+        node.attrParams['strides'] = createNumericArrayAttr([1, 2, 2, 2, 1]);
+        node.attrParams['pad'] = createStrAttr('same');
+
+        const input1 = [tfc.scalar(1.0)];
+        const input2 = [tfc.scalar(1.0)];
+        node.inputNames = ['input1', 'input2'];
+
+        executeOp(node, {input1, input2}, context);
+
+        expect(tfc.conv3dTranspose)
+            .toHaveBeenCalledWith(
+                input1[0], input2[0], [1, 2, 2, 2, 2], [2, 2, 2], 'same');
       });
     });
   });
