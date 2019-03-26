@@ -22,123 +22,153 @@ import {ExecutionContext} from '../../executor/execution_context';
 import {Node, OpExecutor} from '../types';
 import {getParamValue} from './utils';
 
-export let executeOp: OpExecutor =
-    (node: Node, tensorMap: NamedTensorsMap,
-     context: ExecutionContext): tfc.Tensor[] => {
-      switch (node.op) {
-        case 'Conv1D': {
-          const stride =
-              getParamValue('stride', node, tensorMap, context) as number;
-          const pad = getParamValue('pad', node, tensorMap, context);
-          const dataFormat =
-              (getParamValue('dataFormat', node, tensorMap, context) as string)
-                  .toUpperCase();
-          const dilation =
-              getParamValue('dilation', node, tensorMap, context) as number;
-          return [tfc.conv1d(
-              getParamValue('x', node, tensorMap, context) as tfc.Tensor3D,
-              getParamValue('filter', node, tensorMap, context) as tfc.Tensor3D,
-              stride, pad as 'valid' | 'same', dataFormat as 'NWC' | 'NCW',
-              dilation)];
-        }
-        case 'Conv2D': {
-          const stride =
-              getParamValue('strides', node, tensorMap, context) as number[];
-          const pad = getParamValue('pad', node, tensorMap, context);
-          const dataFormat =
-              (getParamValue('dataFormat', node, tensorMap, context) as string)
-                  .toUpperCase();
-          const dilations =
-              getParamValue('dilations', node, tensorMap, context) as number[];
-          return [tfc.conv2d(
-              getParamValue('x', node, tensorMap, context) as tfc.Tensor3D |
-                  tfc.Tensor4D,
-              getParamValue('filter', node, tensorMap, context) as tfc.Tensor4D,
-              [stride[1], stride[2]], pad as 'valid' | 'same',
-              dataFormat as 'NHWC' | 'NCHW', [dilations[0], dilations[1]])];
-        }
-        case 'Conv2DBackpropInput':
-        case 'Conv2dTranspose': {
-          const shape = getParamValue(
-                            'outputShape', node, tensorMap,
-                            context) as [number, number, number] |
-              [number, number, number, number];
-          const stride =
-              getParamValue('strides', node, tensorMap, context) as number[];
-          const pad = getParamValue('pad', node, tensorMap, context);
-          return [tfc.conv2dTranspose(
-              getParamValue('x', node, tensorMap, context) as tfc.Tensor3D |
-                  tfc.Tensor4D,
-              getParamValue('filter', node, tensorMap, context) as tfc.Tensor4D,
-              shape, [stride[1], stride[2]], pad as 'valid' | 'same')];
-        }
-        case 'DepthwiseConv2dNative':
-        case 'DepthwiseConv2d': {
-          const stride =
-              getParamValue('strides', node, tensorMap, context) as number[];
-          const pad = getParamValue('pad', node, tensorMap, context);
-          const dilations =
-              getParamValue('dilations', node, tensorMap, context) as number[];
-          const dataFormat =
-              (getParamValue('dataFormat', node, tensorMap, context) as string)
-                  .toUpperCase();
+export let executeOp: OpExecutor = (node: Node, tensorMap: NamedTensorsMap,
+                                    context: ExecutionContext):
+                                       tfc.Tensor[] => {
+  switch (node.op) {
+    case 'Conv1D': {
+      const stride =
+          getParamValue('stride', node, tensorMap, context) as number;
+      const pad = getParamValue('pad', node, tensorMap, context);
+      const dataFormat =
+          (getParamValue('dataFormat', node, tensorMap, context) as string)
+              .toUpperCase();
+      const dilation =
+          getParamValue('dilation', node, tensorMap, context) as number;
+      return [tfc.conv1d(
+          getParamValue('x', node, tensorMap, context) as tfc.Tensor3D,
+          getParamValue('filter', node, tensorMap, context) as tfc.Tensor3D,
+          stride, pad as 'valid' | 'same', dataFormat as 'NWC' | 'NCW',
+          dilation)];
+    }
+    case 'Conv2D': {
+      const stride =
+          getParamValue('strides', node, tensorMap, context) as number[];
+      const pad = getParamValue('pad', node, tensorMap, context);
+      const dataFormat =
+          (getParamValue('dataFormat', node, tensorMap, context) as string)
+              .toUpperCase();
+      const dilations =
+          getParamValue('dilations', node, tensorMap, context) as number[];
+      return [tfc.conv2d(
+          getParamValue('x', node, tensorMap, context) as tfc.Tensor3D |
+              tfc.Tensor4D,
+          getParamValue('filter', node, tensorMap, context) as tfc.Tensor4D,
+          [stride[1], stride[2]], pad as 'valid' | 'same',
+          dataFormat as 'NHWC' | 'NCHW', [dilations[0], dilations[1]])];
+    }
+    case 'Conv2DBackpropInput':
+    case 'Conv2dTranspose': {
+      const shape = getParamValue(
+                        'outputShape', node, tensorMap,
+                        context) as [number, number, number] |
+          [number, number, number, number];
+      const stride =
+          getParamValue('strides', node, tensorMap, context) as number[];
+      const pad = getParamValue('pad', node, tensorMap, context);
+      return [tfc.conv2dTranspose(
+          getParamValue('x', node, tensorMap, context) as tfc.Tensor3D |
+              tfc.Tensor4D,
+          getParamValue('filter', node, tensorMap, context) as tfc.Tensor4D,
+          shape, [stride[1], stride[2]], pad as 'valid' | 'same')];
+    }
+    case 'DepthwiseConv2dNative':
+    case 'DepthwiseConv2d': {
+      const stride =
+          getParamValue('strides', node, tensorMap, context) as number[];
+      const pad = getParamValue('pad', node, tensorMap, context);
+      const dilations =
+          getParamValue('dilations', node, tensorMap, context) as number[];
+      const dataFormat =
+          (getParamValue('dataFormat', node, tensorMap, context) as string)
+              .toUpperCase();
 
-          return [tfc.depthwiseConv2d(
-              getParamValue('input', node, tensorMap, context) as tfc.Tensor3D |
-                  tfc.Tensor4D,
-              getParamValue('filter', node, tensorMap, context) as tfc.Tensor4D,
-              [stride[1], stride[2]], pad as 'valid' | 'same',
-              dataFormat as 'NHWC' | 'NCHW', [dilations[0], dilations[1]])];
-        }
-        case 'Conv3D': {
-          const stride =
-              getParamValue('strides', node, tensorMap, context) as number[];
-          const pad = getParamValue('pad', node, tensorMap, context);
-          const dataFormat =
-              (getParamValue('dataFormat', node, tensorMap, context) as string)
-                  .toUpperCase();
-          const dilations =
-              getParamValue('dilations', node, tensorMap, context) as number[];
-          return [tfc.conv3d(
-              getParamValue('x', node, tensorMap, context) as tfc.Tensor4D |
-                  tfc.Tensor<tfc.Rank.R5>,
-              getParamValue('filter', node, tensorMap, context) as
-                  tfc.Tensor<tfc.Rank.R5>,
-              [stride[1], stride[2], stride[3]], pad as 'valid' | 'same',
-              dataFormat as 'NHWC' | 'NCHW',
-              [dilations[1], dilations[2], dilations[3]])];
-        }
+      return [tfc.depthwiseConv2d(
+          getParamValue('input', node, tensorMap, context) as tfc.Tensor3D |
+              tfc.Tensor4D,
+          getParamValue('filter', node, tensorMap, context) as tfc.Tensor4D,
+          [stride[1], stride[2]], pad as 'valid' | 'same',
+          dataFormat as 'NHWC' | 'NCHW', [dilations[0], dilations[1]])];
+    }
+    case 'Conv3D': {
+      const stride =
+          getParamValue('strides', node, tensorMap, context) as number[];
+      const pad = getParamValue('pad', node, tensorMap, context);
+      const dataFormat = 'NHWC';
+      // (getParamValue('dataFormat', node, tensorMap, context) as string)
+      //     .toUpperCase();
+      const dilations =
+          getParamValue('dilations', node, tensorMap, context) as number[];
+      return [tfc.conv3d(
+          getParamValue('x', node, tensorMap, context) as tfc.Tensor4D |
+              tfc.Tensor<tfc.Rank.R5>,
+          getParamValue('filter', node, tensorMap, context) as
+              tfc.Tensor<tfc.Rank.R5>,
+          [stride[1], stride[2], stride[3]], pad as 'valid' | 'same',
+          dataFormat as 'NHWC' | 'NCHW',
+          [dilations[1], dilations[2], dilations[3]])];
+    }
+    case 'Conv3DBackpropInputV2':
+    case 'Conv3dTranspose': {
+      const shape = getParamValue(
+                        'outputShape', node, tensorMap,
+                        context) as [number, number, number, number] |
+          [number, number, number, number, number];
+      const stride =
+          getParamValue('strides', node, tensorMap, context) as number[];
+      const pad = getParamValue('pad', node, tensorMap, context);
+      return [tfc.conv3dTranspose(
+          getParamValue('x', node, tensorMap, context) as tfc.Tensor4D |
+              tfc.Tensor<tfc.Rank.R5>,
+          getParamValue('filter', node, tensorMap, context) as
+              tfc.Tensor<tfc.Rank.R5>,
+          shape, [stride[1], stride[2], stride[3]], pad as 'valid' | 'same')];
+    }
 
-        case 'AvgPool': {
-          const stride =
-              getParamValue('strides', node, tensorMap, context) as number[];
-          const pad = getParamValue('pad', node, tensorMap, context);
-          const kernelSize =
-              getParamValue('kernelSize', node, tensorMap, context) as number[];
+    case 'AvgPool': {
+      const stride =
+          getParamValue('strides', node, tensorMap, context) as number[];
+      const pad = getParamValue('pad', node, tensorMap, context);
+      const kernelSize =
+          getParamValue('kernelSize', node, tensorMap, context) as number[];
 
-          return [tfc.avgPool(
-              getParamValue('x', node, tensorMap, context) as tfc.Tensor3D |
-                  tfc.Tensor4D,
-              [kernelSize[1], kernelSize[2]], [stride[1], stride[2]],
-              pad as 'valid' | 'same')];
-        }
+      return [tfc.avgPool(
+          getParamValue('x', node, tensorMap, context) as tfc.Tensor3D |
+              tfc.Tensor4D,
+          [kernelSize[1], kernelSize[2]], [stride[1], stride[2]],
+          pad as 'valid' | 'same')];
+    }
 
-        case 'MaxPool': {
-          const stride =
-              getParamValue('strides', node, tensorMap, context) as number[];
-          const pad = getParamValue('pad', node, tensorMap, context);
-          const kernelSize =
-              getParamValue('kernelSize', node, tensorMap, context) as number[];
+    case 'MaxPool': {
+      const stride =
+          getParamValue('strides', node, tensorMap, context) as number[];
+      const pad = getParamValue('pad', node, tensorMap, context);
+      const kernelSize =
+          getParamValue('kernelSize', node, tensorMap, context) as number[];
 
-          return [tfc.maxPool(
-              getParamValue('x', node, tensorMap, context) as tfc.Tensor3D |
-                  tfc.Tensor4D,
-              [kernelSize[1], kernelSize[2]], [stride[1], stride[2]],
-              pad as 'valid' | 'same')];
-        }
-        default:
-          throw TypeError(`Node type ${node.op} is not implemented`);
-      }
-    };
+      return [tfc.maxPool(
+          getParamValue('x', node, tensorMap, context) as tfc.Tensor3D |
+              tfc.Tensor4D,
+          [kernelSize[1], kernelSize[2]], [stride[1], stride[2]],
+          pad as 'valid' | 'same')];
+    }
+
+    case 'MaxPool3D': {
+      const stride =
+          getParamValue('strides', node, tensorMap, context) as number[];
+      const pad = getParamValue('pad', node, tensorMap, context);
+      const kernelSize =
+          getParamValue('kernelSize', node, tensorMap, context) as number[];
+
+      return [tfc.maxPool3D(
+          getParamValue('x', node, tensorMap, context) as tfc.Tensor4D |
+              tfc.Tensor<tfc.Rank.R5>,
+          [kernelSize[1], kernelSize[2], kernelSize[3]],
+          [stride[1], stride[2], stride[3]], pad as 'valid' | 'same')];
+    }
+    default:
+      throw TypeError(`Node type ${node.op} is not implemented`);
+  }
+};
 
 export const CATEGORY = 'convolution';
